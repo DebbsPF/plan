@@ -1,6 +1,7 @@
 const express = require("express"); // express package
 const { Pool } = require("pg"); // postgres package
 require("dotenv").config(); // to reach the .env file
+const cors = require("cors");
 
 const pool = new Pool({
     user: process.env.DB_USER,
@@ -14,7 +15,7 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json()); // allows Express to understand JSON sent in the request body
-
+app.use(cors());
 
 // Listening for incoming HTTP requests on PORT 3000
 app.listen(PORT, () => {
