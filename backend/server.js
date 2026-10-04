@@ -60,7 +60,19 @@ app.post("/products", (req, res) => {
 
 // READ all products
 app.get("/products", (req, res) => {
-    pool.query("SELECT * FROM product", (error, result) => {
+    pool.query(`
+        SELECT 
+            product.productid,
+            product.name,
+            product.description,
+            product.price,
+            product.stock,
+            category.name AS categoryname
+        FROM product
+        JOIN category
+            ON product.categoryid = category.categoryid
+    `, (error, result) => {
+
         if(error){
             console.error(error);
             res.status(500).json({
@@ -69,6 +81,7 @@ app.get("/products", (req, res) => {
         }else{
             res.json(result.rows);
         }
+
     });
 });
 

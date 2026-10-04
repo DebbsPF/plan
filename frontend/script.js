@@ -1,43 +1,74 @@
-// To get the value for every element or object
 const productForm = document.querySelector("#productForm");
-const productCategory = document.querySelector("#category");
-const productName = document.querySelector("#pname");
-const productDescription = document.querySelector("#desc");
-const productPrice = document.querySelector("#price");
-const productStock= document.querySelector("#stock");
 
-const displayProduct = document.querySelector("#display"); // will append to the html
+const formCategory= document.querySelector("#formCategory");
+const formName = document.querySelector("#formName");
+const formDesc = document.querySelector("#formDesc");
+const formPrice = document.querySelector("#formPrice");
+const formStock = document.querySelector("#formStock");
+const confirmation = document.querySelector("#confirmation");
+
+const productContainer = document.querySelector("#productContainer");
+
+function displayProduct(data){
+
+    const div = document.createElement("div");
+    const displayName = document.createElement("h2");
+    const displayDesc = document.createElement("p");
+    const displayCategory = document.createElement("p");
+    const displayPrice = document.createElement("p");
+    const displayStock = document.createElement("p");
+
+    
+    displayName.textContent = `${data.name}`;
+    displayDesc.textContent = `Description: ${data.description}`;
+    displayCategory.textContent = `Category: ${data.categoryname}`;
+    displayPrice.textContent = `Price: ${data.price}`;
+    displayStock.textContent = `Stock: ${data.stock}`;
+
+
+    div.appendChild(displayName);
+    div.appendChild(displayDesc);
+    div.appendChild(displayCategory);
+    div.appendChild(displayPrice);
+    div.appendChild(displayStock);
+
+    productContainer.appendChild(div);
+}
 
 fetch("http://localhost:3000/products")
 .then(response => {return response.json()})
-.then(data => {console.log(data)});
+.then(data => {
+    data.forEach(product => {
+        displayProduct(product);
+    })
+})
 
-// This form will create a new product
-productForm.addEventListener("submit", () => {
+productForm.addEventListener("submit", (event) => {
     
-    event.preventDefault();
+    event.preventDefault(); // prevents from restarting the website
 
-    // Fetching hosts and using the method POST
-    fetch("http://localhost:3000/products", 
+    fetch("http://localhost:3000/products",
         {method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-                categoryid: productCategory.value,
-                adminid: 1, // set as 1 since for practice pani
-                name: productName.value,
-                description: productDescription.value,
-                price: productPrice.value,
-                stock: productStock.value
+                categoryid: formCategory.value,
+                adminid: 1, // Set as default for now
+                name: formName.value,
+                description: formDesc.value,
+                price: formPrice.value,
+                stock: formStock.value
             })
-        })
-    .then(response => {return response.json()})
-    .then(data => { // Displays the newly created product
-        const p = document.createElement("p");
+        }
+    ).then(response => {return response.json()})
+    .then(data => {
+        displayProduct(data);
 
-        p.textContent = 
-        `${productCategory.value}, ${productName.value},
-         ${productDescription.value}, ${productPrice.value}, ${productStock.value}`
-        
-        displayProduct.appendChild(p);
-    });
+        const confirm = document.createElement("p");
+
+        confirm.textContent = "Successfully Uploaded a New Product";
+
+        confirmation.appendChild(confirm);
+        productForm.reset();
+    })
+
 })

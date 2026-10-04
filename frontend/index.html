@@ -4,27 +4,35 @@
     <head>
         <meta charset = "UTF-8">
         <title>Practice</title>
+        <link rel ="stylesheet" href ="stylesheet.css">
     </head>
 
     <body>
 
-       <form id = "productForm">
-            <input type = "text" id = "pname" placeholder="Product Name">
-            <input type = "text" id = "desc" placeholder="Product Description">
-            <input type = "number" id = "price" placeholder="Product Price">
-            <input type = "number" id = "stock" placeholder="Product Stock">
+        <div id = "productContainer"></div>
 
-            <select id = "category">
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
+        <form id = "productForm">
+            
+            <p>Product Name: <input type = "text" id = "formName" required></p>
+            <p>Description: <input type = "text" id = "formDesc" required></p>
+            <p>Price: <input type = "number" id = "formPrice" required></p>
+            <p>Stock: <input type = "number" id = "formStock" required></p>
+
+           <p> Category: <select id = "formCategory">
+
+                <option value = "1">Shirt</option>
+                <option value = "2">Pants</option>
+                <option value = "3">Boots</option>
+                <option value = "4">Bags</option>
+                
             </select>
+            </p>
 
             <button type = "submit">Confirm</button>
 
-            <div id = "display"></div> <!--Added to display the new created product-->
-       </form> 
+            <p id = "confirmation"></p>
+
+        </form>
 
         <script src = "script.js"></script>
     </body>
