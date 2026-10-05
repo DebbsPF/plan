@@ -17,6 +17,8 @@ function displayProduct(data){
     const displayCategory = document.createElement("p");
     const displayPrice = document.createElement("p");
     const displayStock = document.createElement("p");
+    const delBtn = document.createElement("button");
+    const updBtn = document.createElement("button");
 
     
     displayName.textContent = `${data.name}`;
@@ -24,13 +26,68 @@ function displayProduct(data){
     displayCategory.textContent = `Category: ${data.categoryname}`;
     displayPrice.textContent = `Price: ${data.price}`;
     displayStock.textContent = `Stock: ${data.stock}`;
+    delBtn.textContent = "Delete";
+    updBtn.textContent = "Update";
 
+
+    delBtn.addEventListener("click", () => {
+        fetch(`http://localhost:3000/products/${data.productid}`, 
+            {method: "DELETE"}
+        )
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            div.remove();
+        });
+        
+    })
+
+    updBtn.addEventListener("click", () => {
+        const updPrice = document.createElement("input");
+        const updStock = document.createElement("input");
+        const saveBtn = document.createElement("button");
+
+        updPrice.type = "number";
+        updPrice.placeholder = "Update Price";
+
+        updStock.type = "number";
+        updStock.placeholder = "Update Stock";
+
+        saveBtn.textContent = "Save Update";
+
+        div.appendChild(updPrice);
+        div.appendChild(updStock);
+        div.appendChild(saveBtn);
+
+        saveBtn.addEventListener("click", () => {
+            fetch(`http://localhost:3000/products/${data.productid}`, 
+                {method: "PATCH",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        price: updPrice.value,
+                        stock: updStock.value
+                    })
+                }
+            ).then(response => response.json())
+            .then(data => {
+                displayPrice.textContent = `Price: ${updPrice.value}`;
+                displayStock.textContent = `Stock: ${updStock.value}`;
+            });
+
+        })
+
+
+        
+    });
 
     div.appendChild(displayName);
     div.appendChild(displayDesc);
     div.appendChild(displayCategory);
     div.appendChild(displayPrice);
     div.appendChild(displayStock);
+    div.appendChild(updBtn);
+    div.appendChild(delBtn);
+    
 
     productContainer.appendChild(div);
 }
