@@ -1,21 +1,22 @@
-const express = require("express"); // express package
-const { Pool } = require("pg"); // postgres package
-require("dotenv").config(); // to reach the .env file
-const cors = require("cors");
+import express from "express"; // Import express package
+import { Pool } from "pg"; // Import postgres package
+import "dotenv/config"; // Import dotenv
+import cors from "cors"; // Import cors to access the server.js
 
+// Communicate with PG
 const pool = new Pool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     host: process.env.DB_HOST,
     database: process.env.DB_NAME,
     port: process.env.DB_PORT
-});
+})
 
-const app = express();
-const PORT = 3000;
+const app = express(); // Express application
+const PORT = 3000; // standard Local Port
 
-app.use(express.json()); // allows Express to understand JSON sent in the request body
-app.use(cors());
+app.use(express.json());  // allows Express to understand JSON sent in the request body
+app.use(cors()); // allows to access the server
 
 // Listening for incoming HTTP requests on PORT 3000
 app.listen(PORT, () => {
@@ -23,19 +24,16 @@ app.listen(PORT, () => {
 });
 
 
-// GET /
-app.get("/", (req, res) => {
-    res.send("Army Store");
-});
+// CREATE
 
-
-// CREATE product
+// Route to create a product
 app.post("/products", (req, res) => {
+
     pool.query(
         `INSERT INTO product 
-        (categoryid, adminid, name, description, price, stock) 
+        (categoryid, adminid, name, description, price, stock)
         VALUES($1, $2, $3, $4, $5, $6)
-        RETURNING *`,
+        RETURNING *`, 
         [
             req.body.categoryid,
             req.body.adminid,
@@ -43,22 +41,28 @@ app.post("/products", (req, res) => {
             req.body.description,
             req.body.price,
             req.body.stock
-        ],
+        ], 
         (error, result) => {
             if(error){
                 console.error(error);
                 res.status(500).json({
-                    error: "Failed to insert product to Database"
+                    error: "Error posting product"
                 });
             }else{
                 res.status(201).json(result.rows[0]);
             }
         }
-    );
+    )
+
+})
+
+// READ
+// Route for the "Main Page or /"
+app.get("/", (req, res) => {
+    res.send("Main Route");
 });
 
-
-// READ all products
+// Route for products
 app.get("/products", (req, res) => {
     pool.query(`
         SELECT 
@@ -71,31 +75,28 @@ app.get("/products", (req, res) => {
         FROM product
         JOIN category
             ON product.categoryid = category.categoryid
-    `, (error, result) => {
-
+        `, (error, result) => {
         if(error){
             console.error(error);
             res.status(500).json({
-                error: "Database error"
+                error: "Error on retrieving data"
             });
         }else{
             res.json(result.rows);
         }
+    })
+})
 
-    });
-});
-
-
-// READ product by ID
+// Route for specific product
 app.get("/products/:id", (req, res) => {
     pool.query(
-        "SELECT * FROM product WHERE productid = $1",
+        `SELECT * FROM product WHERE productid = $1`,
         [req.params.id],
         (error, result) => {
             if(error){
                 console.error(error);
                 res.status(500).json({
-                    error: "Database error"
+                    error: "Error on retrieving data"
                 });
             }else{
                 if(result.rowCount === 0){
@@ -107,24 +108,25 @@ app.get("/products/:id", (req, res) => {
                 }
             }
         }
-    );
-});
+    )
+})
 
-
-// UPDATE product
+//UPDATE 
+// Route for products and its product to Update
 app.patch("/products/:id", (req, res) => {
+    
     pool.query(
-        "UPDATE product SET price = $1, stock = $2 WHERE productid = $3",
+        `UPDATE product SET price = $1, stock = $2 WHERE productid = $3 RETURNING *`, 
         [
             req.body.price,
             req.body.stock,
             req.params.id
-        ],
+        ], 
         (error, result) => {
             if(error){
                 console.error(error);
                 res.status(500).json({
-                    error: "Error on updating specific product"
+                    error: "Error on backend"
                 });
             }else{
                 if(result.rowCount === 0){
@@ -132,26 +134,25 @@ app.patch("/products/:id", (req, res) => {
                         error: "Product not found"
                     });
                 }else{
-                    res.status(200).json({
-                        message: "Successfully updated a product"
-                    });
+                    res.status(200).json(result.rows[0]);
                 }
             }
         }
     );
-});
 
+})
 
-// DELETE product
+// DELETE
+// Delete the product
 app.delete("/products/:id", (req, res) => {
-    pool.query(
-        "DELETE FROM product WHERE productid = $1",
+
+    pool.query("DELETE FROM product WHERE productid = $1", 
         [req.params.id],
         (error, result) => {
             if(error){
                 console.error(error);
                 res.status(500).json({
-                    error: "Error on deleting a specific product"
+                    error: "Error on backend"
                 });
             }else{
                 if(result.rowCount === 0){
@@ -159,11 +160,11 @@ app.delete("/products/:id", (req, res) => {
                         error: "Product not found"
                     });
                 }else{
-                    res.status(200).json({
-                        message: "Successfully deleted a product"
-                    });
+                    res.json({message: "Product deleted"});
                 }
             }
         }
     );
-});
+
+})
+
